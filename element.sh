@@ -1,5 +1,5 @@
 #!/bin/bash
-PSQL="psql -X --username=freecodecamp --dbname=periodic_table --tuples-only -c"
+PSQL="psql -X --username=postgres --dbname=periodic_table --tuples-only -c"
 
 ELEMENT_SEARCH(){
   if [[ ! $1 =~ ^[0-9]+$ ]]
