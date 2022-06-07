@@ -1,20 +1,24 @@
 #!/bin/bash
 PSQL="psql -X --username=postgres --dbname=periodic_table --tuples-only -c"
 
+#Searches through the limited periodic table looking for a matching atomic number, symbol, or name
 ELEMENT_SEARCH(){
   if [[ ! $1 =~ ^[0-9]+$ ]]
+    #If statement to check if its a valid argument
     then 
     ELE_SEARCH=$($PSQL "SELECT atomic_number FROM elements WHERE name='$1' OR symbol='$1' ")
-    #echo -e "$ELE_SEARCH"
     else
     ELE_SEARCH=$($PSQL "SELECT atomic_number FROM elements WHERE atomic_number=$1 ")
-    #echo -e "$ELE_SEARCH"
     fi
+
     if [[ -z $ELE_SEARCH ]]
+      #if the search returned no matches in the database
       then
        echo "I could not find that element in the database."
       else
+      #if results were returned it will now query the database for the requested values and format them appropriately to be displayed.
         ELE_RESULTS=$($PSQL "SELECT name, symbol, atomic_mass, melting_point_celsius, boiling_point_celsius FROM properties INNER JOIN elements on properties.atomic_number=elements.atomic_number WHERE properties.atomic_number=$ELE_SEARCH" )
+        #two queries are used to avoid joining three tables
         ELE_TYPE=$($PSQL "SELECT type FROM types INNER JOIN properties on types.type_id=properties.type_id WHERE properties.atomic_number=$ELE_SEARCH")  
         echo "$ELE_RESULTS" | while read NAME BAR SYMBOL BAR MASS BAR MELT BAR BOIL
         do
@@ -22,7 +26,7 @@ ELEMENT_SEARCH(){
         done    
    fi 
   }
-
+#Allow script to be ran with initial argument, if not ask for an element and then run the search function
 MAIN_MENU(){
     if [[ $1 ]]
   then
